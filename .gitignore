@@ -1,0 +1,25 @@
+# Private Keys & Sensitive Credentials
+*.pem
+*.key
+*.id_rsa
+id_rsa*
+*.ppk
+credentials.csv
+.env
+aws_credentials
+
+# Terraform State and Caches
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform.tfvars.example
+
+# OS / Editor Files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.log

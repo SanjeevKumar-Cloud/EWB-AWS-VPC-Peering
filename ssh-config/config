@@ -1,0 +1,27 @@
+# ==============================================================================
+# AWS VPC Peering - SSH Configuration
+# Place in: ~/.ssh/config (Linux/macOS) or C:\Users\<YourUser>\.ssh\config (Windows)
+# ==============================================================================
+
+# Bastion Host (Public Subnet in VPC A)
+Host ewb-bastion
+    HostName BASTION_PUBLIC_IP
+    User ec2-user
+    IdentityFile ~/.ssh/ewb-lab.pem
+    IdentitiesOnly yes
+
+# App-A Host (Private Subnet in VPC A - Jumped via Bastion)
+Host ewb-app-a
+    HostName 10.10.2.10
+    User ec2-user
+    IdentityFile ~/.ssh/ewb-lab.pem
+    IdentitiesOnly yes
+    ProxyJump ewb-bastion
+
+# App-B Host (Private Subnet in VPC B - Jumped via Bastion across Peering)
+Host ewb-app-b
+    HostName 10.20.1.10
+    User ec2-user
+    IdentityFile ~/.ssh/ewb-lab.pem
+    IdentitiesOnly yes
+    ProxyJump ewb-bastion
