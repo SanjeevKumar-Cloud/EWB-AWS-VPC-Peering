@@ -82,6 +82,34 @@ hr {
     background: #dbeafe;
     color: #1d4ed8;
 }
+
+.figure-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 20px 0;
+    text-align: center;
+}
+.figure-card img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+.figure-card .caption {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #475569;
+    font-weight: 500;
+}
+.figure-card .meta {
+    font-size: 0.82rem;
+    color: #64748b;
+    margin-top: 4px;
+}
+
 </style>
 </head>
 <body>
@@ -138,6 +166,13 @@ hr {
 </code></pre>
 <h3>Resource Inventory & Addressing Table</h3>
 <table><thead><tr><th>Resource Name</th><th>Logical Function</th><th>VPC / Subnet</th><th>IPv4 CIDR / Address</th><th>Public IP</th><th>Security Group</th></tr></thead><tbody><tr><td><strong>ewb-vpc-a</strong></td><td>Primary VPC</td><td>VPC A</td><td>10.10.0.0/16</td><td>N/A</td><td>Default</td></tr><tr><td><strong>ewb-a-public</strong></td><td>Public Subnet</td><td>VPC A</td><td>10.10.1.0/24</td><td>Enabled</td><td>N/A</td></tr><tr><td><strong>ewb-a-private</strong></td><td>Private Subnet</td><td>VPC A</td><td>10.10.2.0/24</td><td>Disabled</td><td>N/A</td></tr><tr><td><strong>ewb-vpc-b</strong></td><td>Secondary Workload VPC</td><td>VPC B</td><td>10.20.0.0/16</td><td>N/A</td><td>Default</td></tr><tr><td><strong>ewb-b-private</strong></td><td>Private Subnet</td><td>VPC B</td><td>10.20.1.0/24</td><td>Disabled</td><td>N/A</td></tr><tr><td><strong>ewb-igw-a</strong></td><td>Internet Gateway</td><td>Attached to VPC A</td><td>N/A</td><td>N/A</td><td>N/A</td></tr><tr><td><strong>ewb-bastion</strong></td><td>Jump Host</td><td>ewb-a-public</td><td>10.10.1.10</td><td>Static/Dynamic Public</td><td><code>ewb-sg-bastion</code></td></tr><tr><td><strong>ewb-app-a</strong></td><td>Workload Host A</td><td>ewb-a-private</td><td>10.10.2.10</td><td>None</td><td><code>ewb-sg-app-a</code></td></tr><tr><td><strong>ewb-app-b</strong></td><td>Workload Host B</td><td>ewb-b-private</td><td>10.20.1.10</td><td>None</td><td><code>ewb-sg-app-b</code></td></tr><tr><td><strong>ewb-a-b-peer</strong></td><td>VPC Peering Link</td><td>Requester: VPC A / Accepter: VPC B</td><td>N/A</td><td>N/A</td><td>Active</td></tr></tbody></table>
+
+<div class="figure-card">
+    <img src="../screenshots/02_ec2_instances_inventory.png" alt="EC2 Instances Summary & IP Allocation" onerror="this.onerror=null; this.src='https://placehold.co/800x250/e2e8f0/475569?text=02_ec2_instances_inventory.png';">
+    <div class="caption"><strong>Figure 02:</strong> EC2 Instances Summary & IP Allocation</div>
+    <div class="meta"><strong>Host:</strong> AWS EC2 Console | <strong>Test:</strong> Inventory Audit | <strong>Result:</strong> Bastion has Public IP; App-A & App-B have no Public IP</div>
+</div>
+
 <p>---</p>
 <h2>3. Network & Security Rule Configuration</h2>
 <h3>Route Tables Matrix</h3>
@@ -167,7 +202,13 @@ hr {
   --- 10.20.1.10 ping statistics ---
   4 packets transmitted, 0 received, 100% packet loss, time 3072ms
   </code></pre>
-- <strong>Conclusion:</strong> Proves complete network isolation prior to peering and route table updates.
+- <strong>Conclusion:</strong> Proves complete network isolation prior to peering and route table updates.<br>
+<div class="figure-card">
+    <img src="../screenshots/05_baseline_ping_failure.png" alt="Test 01: Baseline Ping Failure (Pre-Peering)" onerror="this.onerror=null; this.src='https://placehold.co/800x250/e2e8f0/475569?text=05_baseline_ping_failure.png';">
+    <div class="caption"><strong>Figure 05:</strong> Test 01: Baseline Ping Failure (Pre-Peering)</div>
+    <div class="meta"><strong>Host:</strong> ewb-app-a (10.10.2.10) | <strong>Test:</strong> ICMP to 10.20.1.10 | <strong>Result:</strong> 100% Packet Loss (Expected Failure)</div>
+</div>
+
 <h3>Test 02: Forward Path Success (App-A to App-B)</h3>
 - <strong>Host:</strong> <code>ewb-app-a</code> (10.10.2.10)
 - <strong>Command:</strong> <code>ping -c 4 10.20.1.10</code>
@@ -177,7 +218,13 @@ hr {
   64 bytes from 10.20.1.10: icmp_seq=2 ttl=255 time=0.691 ms
   64 bytes from 10.20.1.10: icmp_seq=3 ttl=255 time=0.712 ms
   64 bytes from 10.20.1.10: icmp_seq=4 ttl=255 time=0.680 ms
-<p>--- 10.20.1.10 ping statistics ---<br>  4 packets transmitted, 4 received, 0% packet loss, time 3065ms<br>  rtt min/avg/max/mdev = 0.680/0.731/0.842/0.065 ms<br>  </code></pre><br>- <strong>Conclusion:</strong> Forward path across <code>ewb-a-b-peer</code> is functional with sub-millisecond latency.</p>
+<p>--- 10.20.1.10 ping statistics ---<br>  4 packets transmitted, 4 received, 0% packet loss, time 3065ms<br>  rtt min/avg/max/mdev = 0.680/0.731/0.842/0.065 ms<br>  </code></pre><br>- <strong>Conclusion:</strong> Forward path across <code>ewb-a-b-peer</code> is functional with sub-millisecond latency.<br>
+<div class="figure-card">
+    <img src="../screenshots/06_forward_ping_success.png" alt="Test 02: Forward Path Ping Success" onerror="this.onerror=null; this.src='https://placehold.co/800x250/e2e8f0/475569?text=06_forward_ping_success.png';">
+    <div class="caption"><strong>Figure 06:</strong> Test 02: Forward Path Ping Success</div>
+    <div class="meta"><strong>Host:</strong> ewb-app-a (10.10.2.10) | <strong>Test:</strong> ICMP to 10.20.1.10 | <strong>Result:</strong> 0% Packet Loss (4 packets transmitted, 4 received)</div>
+</div>
+</p>
 <h3>Test 03: Reverse Path Success (App-B to App-A)</h3>
 - <strong>Host:</strong> <code>ewb-app-b</code> (10.20.1.10)
 - <strong>Command:</strong> <code>ping -c 4 10.10.2.10</code>
@@ -187,7 +234,13 @@ hr {
   64 bytes from 10.10.2.10: icmp_seq=2 ttl=255 time=0.685 ms
   64 bytes from 10.10.2.10: icmp_seq=3 ttl=255 time=0.701 ms
   64 bytes from 10.10.2.10: icmp_seq=4 ttl=255 time=0.714 ms
-<p>--- 10.10.2.10 ping statistics ---<br>  4 packets transmitted, 4 received, 0% packet loss, time 3058ms<br>  rtt min/avg/max/mdev = 0.685/0.711/0.745/0.022 ms<br>  </code></pre><br>- <strong>Conclusion:</strong> Confirms symmetrical return path routing in <code>ewb-rt-b-private</code>.</p>
+<p>--- 10.10.2.10 ping statistics ---<br>  4 packets transmitted, 4 received, 0% packet loss, time 3058ms<br>  rtt min/avg/max/mdev = 0.685/0.711/0.745/0.022 ms<br>  </code></pre><br>- <strong>Conclusion:</strong> Confirms symmetrical return path routing in <code>ewb-rt-b-private</code>.<br>
+<div class="figure-card">
+    <img src="../screenshots/07_reverse_ping_success.png" alt="Test 03: Reverse Path Ping Success" onerror="this.onerror=null; this.src='https://placehold.co/800x250/e2e8f0/475569?text=07_reverse_ping_success.png';">
+    <div class="caption"><strong>Figure 07:</strong> Test 03: Reverse Path Ping Success</div>
+    <div class="meta"><strong>Host:</strong> ewb-app-b (10.20.1.10) | <strong>Test:</strong> ICMP to 10.10.2.10 | <strong>Result:</strong> 0% Packet Loss (4 packets transmitted, 4 received)</div>
+</div>
+</p>
 <h3>Test 04: Secure Private SSH Access via ProxyJump</h3>
 - <strong>Host:</strong> Local Workstation
 - <strong>Command:</strong> <code>ssh ewb-app-b</code>
@@ -205,14 +258,26 @@ hr {
   [ec2-user@ip-10-20-1-10 ~]$ hostname -I
   10.20.1.10
   </code></pre>
-- <strong>Conclusion:</strong> Proves administrative access through bastion without any public IP on <code>ewb-app-b</code>.
+- <strong>Conclusion:</strong> Proves administrative access through bastion without any public IP on <code>ewb-app-b</code>.<br>
+<div class="figure-card">
+    <img src="../screenshots/08_ssh_app_b_proxyjump.png" alt="Test 04: Private SSH Access via ProxyJump" onerror="this.onerror=null; this.src='https://placehold.co/800x250/e2e8f0/475569?text=08_ssh_app_b_proxyjump.png';">
+    <div class="caption"><strong>Figure 08:</strong> Test 04: Private SSH Access via ProxyJump</div>
+    <div class="meta"><strong>Host:</strong> Workstation -> ewb-app-b | <strong>Test:</strong> SSH via Bastion Tunnel | <strong>Result:</strong> Interactive Shell Established on 10.20.1.10</div>
+</div>
+
 <h3>Test 05: Workload Public IP Isolation</h3>
 - <strong>Verification:</strong> Inspection of EC2 console and metadata confirmed that neither <code>ewb-app-a</code> nor <code>ewb-app-b</code> possess a public IPv4 address. Both are completely shielded from external internet scanning.
 <p>---</p>
 <h2>6. Controlled Failure & Recovery Experiment</h2>
 <p>To prove that connectivity is actively enforced by security rules rather than open routing, a controlled negative test was executed:</p>
 <p>1. <strong>Failure Injection:</strong> The inbound ICMP Echo Request rule from <code>10.10.2.10/32</code> was deleted from <code>ewb-sg-app-b</code>.<br>2. <strong>Observation:</strong> Ping from <code>ewb-app-a</code> immediately failed with <strong>100% packet loss</strong>. Note that SSH access from the Bastion host remained operational because its rule was untouched.<br>3. <strong>Recovery:</strong> The exact rule (<code>Custom ICMP IPv4 Echo Request</code>, Source <code>10.10.2.10/32</code>) was re-added to <code>ewb-sg-app-b</code>.<br>4. <strong>Verification:</strong> Ping was re-executed and immediately recovered to <strong>0% packet loss</strong>.</p>
-<p><strong>Analysis:</strong> This demonstrates the stateful filtering behavior of AWS Security Groups at the hypervisor Elastic Network Interface (ENI) level.</p>
+<p><strong>Analysis:</strong> This demonstrates the stateful filtering behavior of AWS Security Groups at the hypervisor Elastic Network Interface (ENI) level.<br>
+<div class="figure-card">
+    <img src="../screenshots/09_controlled_failure_recovery.png" alt="Controlled Fault Injection & State Recovery" onerror="this.onerror=null; this.src='https://placehold.co/800x250/e2e8f0/475569?text=09_controlled_failure_recovery.png';">
+    <div class="caption"><strong>Figure 09:</strong> Controlled Fault Injection & State Recovery</div>
+    <div class="meta"><strong>Host:</strong> ewb-app-a & ewb-sg-app-b | <strong>Test:</strong> Rule Removal & Restoration | <strong>Result:</strong> 100% Packet Loss on Rule Removal -> 0% Loss on Rule Restoration</div>
+</div>
+</p>
 <p>---</p>
 <h2>7. Viva & Technical Defense Questions</h2>
 <h3>1. Why is the return route needed?</h3>
@@ -229,7 +294,13 @@ An active peering connection is solely a Layer-3 conduit. Successful communicati
 No. AWS VPC Peering is non-transitive and prohibits "edge-to-edge" routing. Traffic cannot enter a VPC via peering and exit through an Internet Gateway or NAT Gateway. To provide shared egress across multiple VPCs, an AWS Transit Gateway architecture is required.
 <p>---</p>
 <h2>8. Responsible Cleanup & Evidence</h2>
-<p>To adhere to responsible cloud stewardship and eliminate unnecessary AWS costs:<br>1. <strong>EC2 Compute:</strong> Terminated <code>ewb-bastion</code>, <code>ewb-app-a</code>, and <code>ewb-app-b</code>. Confirmed root EBS volumes were deleted.<br>2. <strong>VPC Peering:</strong> Deleted <code>ewb-a-b-peer</code>, which automatically removed the associated routing targets.<br>3. <strong>Security Groups:</strong> Deleted custom security groups <code>ewb-sg-bastion</code>, <code>ewb-sg-app-a</code>, and <code>ewb-sg-app-b</code>.<br>4. <strong>Subnets & Route Tables:</strong> Removed custom subnets and dissociated route tables.<br>5. <strong>Gateways & VPCs:</strong> Detached and deleted <code>ewb-igw-a</code>. Deleted <code>ewb-vpc-a</code> and <code>ewb-vpc-b</code>.</p>
+<p>To adhere to responsible cloud stewardship and eliminate unnecessary AWS costs:<br>1. <strong>EC2 Compute:</strong> Terminated <code>ewb-bastion</code>, <code>ewb-app-a</code>, and <code>ewb-app-b</code>. Confirmed root EBS volumes were deleted.<br>2. <strong>VPC Peering:</strong> Deleted <code>ewb-a-b-peer</code>, which automatically removed the associated routing targets.<br>3. <strong>Security Groups:</strong> Deleted custom security groups <code>ewb-sg-bastion</code>, <code>ewb-sg-app-a</code>, and <code>ewb-sg-app-b</code>.<br>4. <strong>Subnets & Route Tables:</strong> Removed custom subnets and dissociated route tables.<br>5. <strong>Gateways & VPCs:</strong> Detached and deleted <code>ewb-igw-a</code>. Deleted <code>ewb-vpc-a</code> and <code>ewb-vpc-b</code>.<br>
+<div class="figure-card">
+    <img src="../screenshots/10_cleanup_verification.png" alt="Teardown & Cost Elimination Verification" onerror="this.onerror=null; this.src='https://placehold.co/800x250/e2e8f0/475569?text=10_cleanup_verification.png';">
+    <div class="caption"><strong>Figure 10:</strong> Teardown & Cost Elimination Verification</div>
+    <div class="meta"><strong>Host:</strong> AWS Console (EC2 & VPC) | <strong>Test:</strong> Resource Clean-up Audit | <strong>Result:</strong> Instances Terminated, Peering Deleted, Zero Chargeable Resources</div>
+</div>
+</p>
 <p>---</p>
 <h2>9. Key Learnings & Takeaways</h2>
 - Learned how to plan non-overlapping CIDR blocks to prevent routing collisions.
