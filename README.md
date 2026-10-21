@@ -3,13 +3,14 @@
 
 ---
 
-## 👤 Student & Project Metadata
+## 👤 Internship & Student Metadata
 - **Student Name:** Sanjeev Kumar
+- **Internship Program:** AWS Cloud Computing Internship (AWS Architect Associate Track)
+- **Organization:** [EWB EduTech](https://www.linkedin.com/company/ewb-edutech/) (EWB Cloud Labs)
 - **Batch:** Online Multi Cloud with AWS + DevOps with AI Batch-45
-- **Course:** AWS Architect Associate / EWB Cloud Labs
 - **AWS Region:** Asia Pacific (Mumbai) `ap-south-1`
 - **Submission Date:** October 2026
-- **Submission Document:** `report/Sanjeev_Kumar_EWB_VPC_Peering.pdf`
+- **Submission Document:** [Sanjeev_Kumar_EWB_VPC_Peering.pdf](report/Sanjeev_Kumar_EWB_VPC_Peering.pdf)
 
 ---
 
@@ -204,7 +205,8 @@ Every screenshot is labeled with the corresponding **Host**, **Test**, and **Res
 ---
 
 ### Test 04: Private SSH Access via Bastion ProxyJump
-- **Host:** Local Workstation $ightarrow$ `ewb-app-b`
+- **Host:** Local Workstation $
+ightarrow$ `ewb-app-b`
 - **Command:** `ssh ewb-app-b`
 - **Result:** Direct interactive shell prompt on `[ec2-user@ip-10-20-1-10 ~]$` through Bastion.
 ![Test 04](screenshots/08_ssh_app_b_proxyjump.png)
@@ -298,5 +300,7 @@ An active peering connection is solely a Layer-3 transport pipe. For end-to-end 
 
 ---
 **Author:** Sanjeev Kumar  
+**Internship:** AWS Cloud Internship  
 **Batch:** Online Multi Cloud with AWS + DevOps with AI Batch-45  
-**Course:** EWB Cloud Labs — AWS Architect Associate\n
+**Organization:** [EWB EduTech](https://www.linkedin.com/company/ewb-edutech/)  
+**Certification Track:** EWB Cloud Labs — AWS Architect Associate\n
