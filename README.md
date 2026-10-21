@@ -1,6 +1,12 @@
 # AWS VPC Peering: Connect Two VPCs & Prove Private Connectivity
 ### EWB Cloud Labs Student Project Workbook | AWS Architect Associate (Project 01 / Oct 2026)
 
+![AWS Console](https://img.shields.io/badge/AWS-Management%20Console%20(GUI)-232F3E?logo=amazon-aws&style=for-the-badge)
+![AWS VPC](https://img.shields.io/badge/Networking-VPC%20Peering-FF9900?logo=amazon-aws&style=for-the-badge)
+![EC2](https://img.shields.io/badge/Compute-Amazon%20EC2-FF9900?logo=amazon-aws&style=for-the-badge)
+![Security](https://img.shields.io/badge/Security-Least%20Privilege%20/32-green?style=for-the-badge)
+![OpenSSH](https://img.shields.io/badge/Admin-ProxyJump%20Bastion-lightgrey?logo=gnubash&style=for-the-badge)
+
 ---
 
 ## 👤 Internship & Student Metadata
@@ -9,6 +15,7 @@
 - **Organization:** [EWB EduTech](https://www.linkedin.com/company/ewb-edutech/) (EWB Cloud Labs)
 - **Batch:** Online Multi Cloud with AWS + DevOps with AI Batch-45
 - **AWS Region:** Asia Pacific (Mumbai) `ap-south-1`
+- **Deployment Method:** 100% AWS Management Console (GUI)
 - **Submission Date:** October 2026
 - **Submission Document:** [Sanjeev_Kumar_EWB_VPC_Peering.pdf](report/Sanjeev_Kumar_EWB_VPC_Peering.pdf)
 
@@ -20,10 +27,10 @@
 > EWB has an application in VPC A and a second workload in VPC B. Both application servers must stay private. Create VPC peering so they can exchange traffic using their private IPv4 addresses. Use one public bastion in VPC A for administration.
 
 ### Key Demonstrations:
-1. Plan non-overlapping VPC and subnet CIDRs.
-2. Create public and private subnets with explicit route table associations.
-3. Activate peering, configure return routes, and allow only the required inbound traffic.
-4. Show a failed test before peering, successful tests after peering, and a controlled failure.
+1. **Plan non-overlapping CIDRs:** VPC A (`10.10.0.0/16`) and VPC B (`10.20.0.0/16`).
+2. **Subnet & Route Associations:** Public and private subnets with explicit custom route table associations.
+3. **VPC Peering Activation:** Create and accept `ewb-a-b-peer`, configure bidirectional return routes, and enforce `/32` least-privilege security groups.
+4. **Complete Verification Lifecycle:** Document baseline isolation failure (pre-peering), forward path ping, reverse path ping, private SSH via ProxyJump, and a controlled fault injection & state recovery test.
 
 ---
 
@@ -77,6 +84,8 @@ flowchart TD
 
 ## 03 / Resource & IP Addressing Plan
 
+Configured via the **AWS Management Console (GUI)** in Mumbai (`ap-south-1`):
+
 | Resource / Name Tag | VPC / Subnet | IPv4 CIDR / Address | Public IP | Security Group |
 |---|---|---|---|---|
 | **ewb-vpc-a** | VPC A | `10.10.0.0/16` | N/A | Default |
@@ -93,33 +102,55 @@ flowchart TD
 
 ---
 
-## 04 / Network & Security Configuration
+## 04 / AWS Management Console (GUI) Step-by-Step Setup
 
-### Inbound Security Group Rules (/32 Micro-Segmentation)
+### 1. Build VPC A (Console)
+1. **Create VPC:** In VPC Console > **Create VPC** > Select **VPC only** > Name: `ewb-vpc-a` > CIDR: `10.10.0.0/16`.
+2. **Create Subnets:**
+   - Public: `ewb-a-public` (`10.10.1.0/24`) in `ap-south-1a`.
+   - Private: `ewb-a-private` (`10.10.2.0/24`) in `ap-south-1a`.
+3. **Attach Internet Gateway:** Create `ewb-igw-a` > Actions > Attach to `ewb-vpc-a`.
+4. **Create Route Tables:**
+   - `ewb-rt-a-public`: Associate `ewb-a-public` > Add route `0.0.0.0/0 -> ewb-igw-a`.
+   - `ewb-rt-a-private`: Associate `ewb-a-private` > Retain only local route `10.10.0.0/16`.
 
-| Security Group | VPC | Type / Protocol | Port | Source | Purpose |
-|---|---|---|---|---|---|
-| **ewb-sg-bastion** | VPC A | SSH (TCP) | 22 | `Your_Public_IP/32` (or anywhere for lab) | Administrative SSH from laptop |
-| **ewb-sg-app-a** | VPC A | SSH (TCP) | 22 | `10.10.1.10/32` | SSH via Bastion private IP |
-| **ewb-sg-app-a** | VPC A | Custom ICMP - IPv4 | Echo Request (8/0) | `10.20.1.10/32` | Allow ping responses from App-B |
-| **ewb-sg-app-b** | VPC B | SSH (TCP) | 22 | `10.10.1.10/32` | SSH via Bastion private IP across peering |
-| **ewb-sg-app-b** | VPC B | Custom ICMP - IPv4 | Echo Request (8/0) | `10.10.2.10/32` | Allow ping tests from App-A |
+### 2. Build VPC B (Console)
+1. **Create VPC:** **Create VPC** > **VPC only** > Name: `ewb-vpc-b` > CIDR: `10.20.0.0/16`.
+2. **Create Subnet:** Name: `ewb-b-private` (`10.20.1.0/24`) in `ap-south-1a`.
+3. **Route Table:** Name: `ewb-rt-b-private` > Associate `ewb-b-private` > Retain only local route. No Internet Gateway.
 
-### Route Table Matrix
+### 3. Create Security Groups (/32 Micro-Segmentation)
+- **`ewb-sg-bastion`** (in VPC A): Inbound SSH (Port 22) from workstation public IP.
+- **`ewb-sg-app-a`** (in VPC A):
+  - Inbound SSH (Port 22) from `10.10.1.10/32` (Bastion private IP).
+  - Inbound Custom ICMP - IPv4 Echo Request (Type 8, Code 0) from `10.20.1.10/32` (App-B).
+- **`ewb-sg-app-b`** (in VPC B):
+  - Inbound SSH (Port 22) from `10.10.1.10/32` (Bastion private IP).
+  - Inbound Custom ICMP - IPv4 Echo Request (Type 8, Code 0) from `10.10.2.10/32` (App-A).
 
-| Route Table | Associated Subnet | Destination | Target | Purpose |
-|---|---|---|---|---|
-| **ewb-rt-a-public** | `ewb-a-public` | `10.10.0.0/16`<br>`0.0.0.0/0`<br>`10.20.0.0/16` | `local`<br>`ewb-igw-a`<br>`ewb-a-b-peer` (pcx) | Local VPC A routing<br>Internet access for Bastion<br>Bastion SSH to App-B |
-| **ewb-rt-a-private**| `ewb-a-private` | `10.10.0.0/16`<br>`10.20.0.0/16` | `local`<br>`ewb-a-b-peer` (pcx) | Local VPC A routing<br>Forward path App-A to VPC B |
-| **ewb-rt-b-private**| `ewb-b-private` | `10.20.0.0/16`<br>`10.10.0.0/16` | `local`<br>`ewb-a-b-peer` (pcx) | Local VPC B routing<br>Essential return path to VPC A |
+### 4. Launch EC2 Instances (Console)
+All instances launched on **Amazon Linux 2023 (`t3.micro`)** with key pair `ewb-lab`:
+- **`ewb-bastion`**: Subnet `ewb-a-public`, Primary IP `10.10.1.10`, Auto-assign public IP: **Enable**, SG: `ewb-sg-bastion`.
+- **`ewb-app-a`**: Subnet `ewb-a-private`, Primary IP `10.10.2.10`, Auto-assign public IP: **Disable**, SG: `ewb-sg-app-a`.
+- **`ewb-app-b`**: Subnet `ewb-b-private`, Primary IP `10.20.1.10`, Auto-assign public IP: **Disable**, SG: `ewb-sg-app-b`.
+
+### 5. Establish VPC Peering (Console)
+1. In VPC Console > **Peering connections** > **Create peering connection**.
+2. Name: `ewb-a-b-peer` > Requester: `ewb-vpc-a` > Accepter: `ewb-vpc-b`.
+3. Actions > **Accept request** > Status changes to **Active**.
+
+### 6. Update Route Tables with Peering Routes (Console)
+- **`ewb-rt-a-public`**: Add `10.20.0.0/16` $	o$ Target: `ewb-a-b-peer` (`pcx-xxxx`).
+- **`ewb-rt-a-private`**: Add `10.20.0.0/16` $	o$ Target: `ewb-a-b-peer` (`pcx-xxxx`).
+- **`ewb-rt-b-private`**: Add `10.10.0.0/16` $	o$ Target: `ewb-a-b-peer` (`pcx-xxxx`) *(Return path)*.
 
 ---
 
 ## 05 / OpenSSH Administration via ProxyJump
 
-To maintain key security, `ewb-lab.pem` is kept exclusively on the local workstation and is **never** uploaded or pasted onto any cloud instance.
+To protect the private key from cloud exposure, `ewb-lab.pem` is kept strictly on the local machine and used via OpenSSH `ProxyJump`.
 
-### `~/.ssh/config` Configuration:
+### Local `~/.ssh/config`:
 ```ssh-config
 Host ewb-bastion
     HostName <BASTION_PUBLIC_IP>
@@ -146,7 +177,7 @@ Host ewb-app-b
 
 ## 06 / Project Evidence & Verification Gallery
 
-Every screenshot is labeled with the corresponding **Host**, **Test**, and **Result** as mandated by Workbook Page 13.
+Every screenshot is captured directly from the **AWS Management Console** and terminal, labeled with **Host**, **Test**, and **Result** as required by Workbook Page 13.
 
 ### Checkpoint 01: VPC A Subnet Associations & Default Route
 - **Host:** AWS VPC Console
@@ -205,8 +236,7 @@ Every screenshot is labeled with the corresponding **Host**, **Test**, and **Res
 ---
 
 ### Test 04: Private SSH Access via Bastion ProxyJump
-- **Host:** Local Workstation $
-ightarrow$ `ewb-app-b`
+- **Host:** Local Workstation $ightarrow$ `ewb-app-b`
 - **Command:** `ssh ewb-app-b`
 - **Result:** Direct interactive shell prompt on `[ec2-user@ip-10-20-1-10 ~]$` through Bastion.
 ![Test 04](screenshots/08_ssh_app_b_proxyjump.png)
@@ -266,15 +296,8 @@ An active peering connection is solely a Layer-3 transport pipe. For end-to-end 
 ## 📂 Repository File Structure
 
 ```
-├── .gitignore                          # Ignores sensitive keys (.pem) and state files
-├── README.md                           # Master project documentation (Workbook aligned)
-├── cloudformation/
-│   └── vpc-peering-lab.yaml            # 1-Click AWS CloudFormation deployment template
-├── terraform/
-│   ├── main.tf                         # Complete IaC definitions (VPCs, Subnets, Routes, SGs, EC2)
-│   ├── variables.tf                    # Configurable inputs
-│   ├── outputs.tf                      # Infrastructure outputs (IPs, Peering ID)
-│   └── terraform.tfvars.example        # Sample configuration variables
+├── .gitignore                          # Ignores sensitive keys (.pem) and credentials
+├── README.md                           # Master project documentation (100% Console GUI aligned)
 ├── scripts/
 │   ├── setup-ssh.ps1                   # Windows PowerShell script: key permission fix & ProxyJump config
 │   └── test-connectivity.sh            # Linux bash script: automated hostname, IP & ICMP tests
@@ -293,9 +316,9 @@ An active peering connection is solely a Layer-3 transport pipe. For end-to-end 
 │   ├── 10_cleanup_verification.png    # Checkpoint 05: Resource Teardown Proof
 │   └── SCREENSHOT_GUIDE.md             # Screenshot specifications
 └── report/
-    ├── Sanjeev_Kumar_EWB_VPC_Peering.md   # Complete 100-mark report source
+    ├── Sanjeev_Kumar_EWB_VPC_Peering.pdf  # Final submission PDF document
     ├── Sanjeev_Kumar_EWB_VPC_Peering.html # Printable report with embedded screenshot figures
-    └── Sanjeev_Kumar_EWB_VPC_Peering.pdf  # Final submission PDF document
+    └── Sanjeev_Kumar_EWB_VPC_Peering.md   # Complete 100-mark report source
 ```
 
 ---
