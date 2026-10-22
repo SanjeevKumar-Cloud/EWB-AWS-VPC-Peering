@@ -5,7 +5,7 @@
 
 ### Student & Project Metadata
 - **Student Name:** Sanjeev Kumar
-- **Course / Batch:** AWS Architect Associate / EWB Cloud Labs
+- **Course:** AWS Architect Associate / EWB Cloud Labs
 - **Project Title:** Project 01: AWS VPC Peering (EWB Cloud Labs Workbook)
 - **AWS Region:** ap-south-1 (Asia Pacific - Mumbai)
 - **Completion Date:** October 2026
@@ -235,7 +235,7 @@ To prove that connectivity is actively enforced by security rules rather than op
 
 ---
 
-## 7. Viva & Technical Defense Questions
+## 7. Viva & Technical Questions
 
 ### 1. Why is the return route needed?
 Routing in IP networks is hop-by-hop and asymmetric. While the peering link bridges the two VPCs, packet forwarding requires that each VPC's virtual router knows where to deliver traffic. When App-B responds to App-A, its router looks up destination `10.10.2.10`. Without the `10.10.0.0/16 -> pcx` route in VPC B's route table, the packet cannot be forwarded and is dropped.

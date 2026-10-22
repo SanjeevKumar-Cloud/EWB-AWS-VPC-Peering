@@ -118,7 +118,7 @@ hr {
 <p>---</p>
 <h3>Student & Project Metadata</h3>
 - <strong>Student Name:</strong> Sanjeev Kumar
-- <strong>Course / Batch:</strong> AWS Architect Associate / EWB Cloud Labs
+- <strong>Course:</strong> AWS Architect Associate / EWB Cloud Labs
 - <strong>Project Title:</strong> Project 01: AWS VPC Peering (EWB Cloud Labs Workbook)
 - <strong>AWS Region:</strong> ap-south-1 (Asia Pacific - Mumbai)
 - <strong>Completion Date:</strong> October 2026
@@ -279,7 +279,7 @@ hr {
 </div>
 </p>
 <p>---</p>
-<h2>7. Viva & Technical Defense Questions</h2>
+<h2>7. Viva & Technical Questions</h2>
 <h3>1. Why is the return route needed?</h3>
 Routing in IP networks is hop-by-hop and asymmetric. While the peering link bridges the two VPCs, packet forwarding requires that each VPC's virtual router knows where to deliver traffic. When App-B responds to App-A, its router looks up destination <code>10.10.2.10</code>. Without the <code>10.10.0.0/16 -> pcx</code> route in VPC B's route table, the packet cannot be forwarded and is dropped.
 <h3>2. Why is the App-B SSH source the bastion private IP?</h3>

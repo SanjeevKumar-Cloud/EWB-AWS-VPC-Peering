@@ -13,7 +13,6 @@
 - **Student Name:** Sanjeev Kumar
 - **Internship Program:** AWS Cloud Computing Internship (AWS Architect Associate Track)
 - **Organization:** [EWB EduTech](https://www.linkedin.com/company/ewb-edutech/) (EWB Cloud Labs)
-- **Batch:** Online Multi Cloud with AWS + DevOps with AI Batch-45
 - **AWS Region:** Asia Pacific (Mumbai) `ap-south-1`
 - **Deployment Method:** 100% AWS Management Console (GUI)
 - **Submission Date:** October 2026
@@ -77,7 +76,7 @@ flowchart TD
 ```
 
 - **Administration:** Laptop > Bastion > App-A or App-B using OpenSSH `ProxyJump`.
-- **Workload Traffic:** App-A $\leftrightarrow$ App-B over private IPs through `ewb-a-b-peer`.
+- **Workload Traffic:** App-A <-> App-B over private IPs through `ewb-a-b-peer`.
 - **Security Boundary:** Peering is strictly non-transitive; VPC B receives NO internet access through VPC A.
 
 ---
@@ -260,7 +259,7 @@ ightarrow$ `ewb-app-b`
 
 ---
 
-## 07 / Viva & Architecture Defense (Workbook Page 12)
+## 07 / Viva & Architecture Questions (Workbook Page 12)
 
 ### 1. Why is the return route needed?
 IP routing is hop-by-hop and asymmetric. When `ewb-app-a` sends a packet to `ewb-app-b`, the forward route in `ewb-rt-a-private` delivers the packet across `pcx`. However, when `ewb-app-b` transmits its response, the VPC B virtual router consults its own route table (`ewb-rt-b-private`). Without an explicit entry `10.10.0.0/16 -> pcx`, VPC B has no route for the destination and drops the return packet.
@@ -289,7 +288,7 @@ An active peering connection is solely a Layer-3 transport pipe. For end-to-end 
 | **Peering + Forward & Return Routes** | 20 | Active peering (`ewb-a-b-peer`), routes on all 3 tables (`ewb-rt-a-public`, `ewb-rt-a-private`, `ewb-rt-b-private`) | ✅ Complete |
 | **Security Rules & Private SSH Access** | 20 | Strict `/32` host rules, Bastion `ProxyJump` administration with zero key leakage | ✅ Complete |
 | **Positive & Negative Test Evidence** | 15 | Baseline failure (100% loss), bidirectional ping (0% loss), controlled fault & recovery | ✅ Complete |
-| **Report Clarity, Viva & Cleanup Evidence** | 10 | Answers to all 4 defense questions, full resource teardown proof, final PDF report | ✅ Complete |
+| **Report Clarity, Viva & Cleanup Evidence** | 10 | Answers to all 4 viva questions, full resource teardown proof, final PDF report | ✅ Complete |
 | **Total Marks** | **100** | **Ready for Evaluation** | **100 / 100** |
 
 ---
@@ -299,9 +298,6 @@ An active peering connection is solely a Layer-3 transport pipe. For end-to-end 
 ```
 ├── .gitignore                          # Ignores sensitive keys (.pem) and credentials
 ├── README.md                           # Master project documentation (100% Console GUI aligned)
-├── scripts/
-│   ├── setup-ssh.ps1                   # Windows PowerShell script: key permission fix & ProxyJump config
-│   └── test-connectivity.sh            # Linux bash script: automated hostname, IP & ICMP tests
 ├── ssh-config/
 │   └── config                          # OpenSSH ProxyJump configuration template
 ├── screenshots/
@@ -325,6 +321,5 @@ An active peering connection is solely a Layer-3 transport pipe. For end-to-end 
 ---
 **Author:** Sanjeev Kumar  
 **Internship:** AWS Cloud Internship  
-**Batch:** Online Multi Cloud with AWS + DevOps with AI Batch-45  
 **Organization:** [EWB EduTech](https://www.linkedin.com/company/ewb-edutech/)  
 **Certification Track:** EWB Cloud Labs — AWS Architect Associate\n
