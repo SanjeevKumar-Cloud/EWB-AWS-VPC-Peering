@@ -1,4 +1,4 @@
-# AWS VPC Peering - Viva & Technical Interview Defense
+# AWS VPC Peering - Viva & Technical Interview
 
 This document provides comprehensive, expert-level explanations for the four mandatory workbook defense questions and advanced architectural considerations.
 
