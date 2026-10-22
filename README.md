@@ -1,5 +1,5 @@
 # AWS VPC Peering: Connect Two VPCs & Prove Private Connectivity
-### EWB Cloud Labs Student Project Workbook | AWS Architect Associate (Project 01 / Oct 2026)
+### EWB Cloud Labs Student Project Workbook | (Oct 2026)
 
 ![AWS Console](https://img.shields.io/badge/AWS-Management%20Console%20(GUI)-232F3E?logo=amazon-aws&style=for-the-badge)
 ![AWS VPC](https://img.shields.io/badge/Networking-VPC%20Peering-FF9900?logo=amazon-aws&style=for-the-badge)
@@ -236,7 +236,8 @@ Every screenshot is captured directly from the **AWS Management Console** and te
 ---
 
 ### Test 04: Private SSH Access via Bastion ProxyJump
-- **Host:** Local Workstation $ightarrow$ `ewb-app-b`
+- **Host:** Local Workstation $
+ightarrow$ `ewb-app-b`
 - **Command:** `ssh ewb-app-b`
 - **Result:** Direct interactive shell prompt on `[ec2-user@ip-10-20-1-10 ~]$` through Bastion.
 ![Test 04](screenshots/08_ssh_app_b_proxyjump.png)
